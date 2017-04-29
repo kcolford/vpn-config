@@ -1,0 +1,52 @@
+openvpn configuration
+
+configuring and setting up a vpn can be confusing and hard, but
+ultimately worth while. this is a set of scripts to ease such setup
+namely for openvpn.
+
+access to the vpn will be managed using a pki setup with
+easy-rsa. most package managers have it somewhere.
+
+a subnet needs to be chosen for both ipv4 and ipv6
+addressing. 10.13.0.0/16 and fd13::/16 should be enough, although the
+ipv6 /16 might be too big for openvpn so we can just shrink it to a
+/64.
+
+the option --client-connect can be used to setup association between
+the client's cn and a preconfigured ip address. alternatively we can
+use the management interface, but that seems excessively
+complicated. hopefully the client-connect script can be specified
+inline with the configuration file.
+
+dns entries need to be setup for each cn and address. need to consider
+if these will be public records or private ones and if they are public
+then a domain will need to be setup for them. if they are private than
+we may have a problem since not all clients will accept the dns
+servers we push to them, my own systems use bind9 as a resolver
+locally and `truncate -s 0 /etc/resolv.conf; chattr +i
+/etc/resolv.conf` because dnssec isn't always used on the pushed dns
+servers and they can mess with what's intentionally setup.
+
+a person may not want to always expose their personal dns setting
+publicly, so in that case we can use a split dns configuration.
+
+domain zone files can be generated. they can also generate ip
+addresses, although that will only be useful if our pushed dns servers
+are accepted. 
+
+postfix configuration can also be generated. this will use the vpn
+server as an email gateway.
+
+the vpn server will become a traditional gateway.
+
+dns can be managed through nsupdate.
+
+there's no need for dhcp or anything like that. openvpn can just push
+all routes on its own.
+
+client-to-client routing will need to turned on in openvpn for an
+intranet. alternatively we can use tap devices but those are supposed
+to be much slower than tun devices. there isn't much need for tap
+devices anyway since the only thing tun devices can't do is broadcast
+addressing but multicast should be fine.
+
